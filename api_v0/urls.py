@@ -20,5 +20,6 @@ app_name = "articles"
 # app_name will help us do a reverse look-up latter.
 urlpatterns = [
     path('auth', AuthView.as_view()),
+    path('auth_1', UserView.as_view()),
     # path('articles/<int:pk>', ArticleView.as_view())
 ]

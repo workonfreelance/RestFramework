@@ -2,43 +2,44 @@ from django.shortcuts import render, get_object_or_404
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.contrib.auth import authenticate
 from api_v0.serializers import *
 from api_v0.forms import *
 
 
 class AuthView(APIView):
+    permission_classes = (AllowAny,)
     def post(self, request):
         # print(request.data.get('user'))
         # print(request.POST)
-        login_data = request.data.get('user')
+        #
+        login_data = request.data
         login_form = LoginForm(login_data)
         if login_form.is_valid():
             cd = login_form.cleaned_data
             user = authenticate(request,
                                 username=cd['username'],
                                 password=cd['password'])
-
-
             if user is None:
-                return Response({"answer": f"Error data"})
+                return Response({"detail": f"Error data"})
 
             if user.is_active:
-                token = Token.objects.create(user=user)
-                return Response({"answer": f"Authenticated successfully","token":token.key})
+                token = Token.objects.get_or_create(user=user)[0]
+                print(token)
+                return Response({"detail": f"Authenticated successfully","token":str(token)})
             else:
-                return Response({"answer": f"Disabled account"})
+                return Response({"detail": f"Disabled account"})
 
         else:
-            return Response({"answer": f"Error data"})
+            return Response({"detail": f"Error data"})
+
 
 
 class UserView(APIView):
-
-    def get(self, request):
-        articles = settings.AUTH_USER_MODEL.objects.all()
-        serializer = User(articles, many=True)
-        return Response({"ssers": serializer.data})
+    permission_classes = (IsAuthenticated,)
+    def post(self, request):
+        return Response({"ssers": "====+++++"})
 
     # def post(self, request):
 # user_form = UserRegistrationForm(request.POST)
